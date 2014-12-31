@@ -24,4 +24,5 @@ lastStop(X, X2) :- X = X2.
 
 solve(From, To, Path) :-
 	write('*'),
-	findAWayOut(From,To,Path).
+	findAWayOut(From,To,Path),
+	write('@@@@').
