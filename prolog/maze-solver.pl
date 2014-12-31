@@ -25,34 +25,32 @@ lastStop(X, X2) :- X = X2.
 
 solve(From, To, Path) :-
 	write('*'),
-	findAWayOut(From,To,Path),
-	write('@@@@').
+	findAWayOut(From,To,Path).
 	
 % TEST SOME CONCEPTS HERE
 findPath(X,X,[X]).
 findPath(X,X2,[X|R]) :-
 		X < X2, Z is X+1, findPath(Z,X2,R).
 		
-
+%It makes a list of the two list
 findPathSecond([X1|[X2|_]],[Y1|[Y2|_]],R) :-
 	findPath(X1,Y2,R1), 
 	findPath(X2,Y2,R2),	
 	append([R1],[R2],R).
 
-
+%not in used, but useful to have. Similar to the following one.
 makePairsX(0,Y,[]).
 makePairsX(X,Y,R) :-
 	A is X-1, makePairsX(A,Y,Z), append(Z,[[X,Y]],R).
-	
-check(X,L) :-
-	barrier(X,L), write('Yes - '), write([X,L]), nl.
-	
+
+%look for all the locations of the maze in a column
 makePairsY(X,0,[]).
 makePairsY(X,Y,R) :-
 	A is Y-1, makePairsY(X,A,Z), append(Z,[[X,Y]],R).
 
+%produce all the locations of the maze
 makeTree(0,Y,R).
 makeTree(X,Y,R) :-
-	makePairsY(X,Y,Z), write(Z), A is X-1, makeTree(A,Y,B), append(B,Z,R).
+	makePairsY(X,Y,Z), A is X-1, makeTree(A,Y,B), append(B,Z,R).
 
 	
