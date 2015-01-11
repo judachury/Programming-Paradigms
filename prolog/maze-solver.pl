@@ -1,6 +1,6 @@
 mazeSize(5,9).
 barrier(1,8).
-barrier(2,8).
+barrier(2,1).
 barrier(2,2).
 barrier(2,4).
 barrier(2,5).
@@ -12,6 +12,12 @@ barrier(4,7).
 barrier(4,8).
 barrier(4,9).
 barrier(5,2).
+
+solve(From,To,Path) :- 
+	mazeSize(X,Y),
+	move(From,To,Z), 
+	append([From],Z,Path),
+	makeTable(X,Y,Path) .
 
 move(X,X,Z).
 move([FromX|[FromY|_]],[ToX|[ToY|_]],Path) :- move0(FromX,ToX,FromY,ToY,[],P), rev(P,Path).
@@ -49,40 +55,39 @@ rev(L1,L2) :- reverseme(L1,[],L2).
 reverseme([],L,L).
 reverseme([X|L],L2,L3) :- reverseme(L,[X|L2],L3).
 
-%print the maze
-columns(AnyRow,0).
-columns(Row,Column) :- barrier(Row,Column), write('x '), NewColumn is Column-1, columns(NewRow,NewColumn).
-columns(Row,Column) :- write('. '), NewColumn is Column-1, columns(Row,NewColumn).
-
+%============================================================
 printNumbers(X,X).
 printNumbers(X,Y) :- 
 	Z is X+1, write(Z), write(' '), printNumbers(Z,Y).
 
-printDivider(0).
-printDivider(X) :-
-	print('--'), Z is X-1, printDivider(Z).
+printColumnNumbers(From,To) :- write('    '), printNumbers(From,To), nl.
 
-columns0(X,X) :- write('. '). 
-columns0(From,To) :- write('. '), Z is From+1, columns0(Z,To).
+middleLine(X,X).
+middleLine(X,Y) :- Z is X+1, write('--'), middleLine(Z,Y).
 
-mazeTable(X,X,Z) :- write(X), write(' | '), columns0(1,Z), write('|').
-mazeTable(From,Rows,Columns) :- 
-	write(From), 
-	write(' | '), 
-	columns0(1,Columns), 
-	write('|'), 
-	nl, 
-	Z is From+1, 
-	mazeTable(Z,Rows,Columns).
+printDivider(X) :- write('  +-'), middleLine(0,X), write('+'), nl.
 
+mycolumns(X,X,Row,Path).
+mycolumns(From,To,Row,Path) :- 
+	Z is From+1, member([Row,Z],Path), write('* '), mycolumns(Z,To,Row,Path).
+mycolumns(From,To,Row,Path) :- 
+	Z is From+1, not(barrier(Row,Z)), write('. '), mycolumns(Z,To,Row,Path).
+mycolumns(From,To,Row,Path) :- 
+	Z is From+1, barrier(Row,Z), write('x '), mycolumns(Z,To,Row,Path).
 
-printMaze(X,X).
-printMaze(X,Y) :-
-	print('    '), printNumbers(0,Y), nl,
-	print('  +'), printDivider(Y), print('-+'), nl,
-	mazeTable(1,X,Y), nl,
-	print('  +'), printDivider(Y), print('-+'), nl.
+printTable(X,X,Y,Z,P).
+printTable(X,Rows,Y,Columns,Path) :- 
+	Z is X+1, write(Z), write(' | '),
+	mycolumns(Y,Columns,Z,Path), write('|'), nl,
+	printTable(Z,Rows,Y,Columns,Path).
 
-maze :- 
-	mazeSize(X,Y), 
-	printMaze(X,Y).
+makeTable(Rows,Columns,P) :-
+	Z is 0, 
+	printColumnNumbers(Z,Columns),
+	printDivider(Columns),
+	printTable(Z,Rows,Z,Columns,P),
+	printDivider(Columns).   
+
+maze :-
+	mazeSize(X,Y),
+	makeTable(X,Y,P).

@@ -85,6 +85,42 @@ makeTree(0,Y,R).
 makeTree(X,Y,R) :-
 	makePairsY(X,Y,Z), A is X-1, makeTree(A,Y,B), append(B,Z,R).
 
+
+%==========================================================================
+%print the maze - working example, but too much code
+printNumbers(X,X).
+printNumbers(X,Y) :- 
+	Z is X+1, write(Z), write(' '), printNumbers(Z,Y).
+
+printDivider(0).
+printDivider(X) :-
+	print('--'), Z is X-1, printDivider(Z).
+
+columns0(X,X) :- write('. '). 
+columns0(From,To) :- write('. '), Z is From+1, columns0(Z,To).
+
+mazeTable(X,X,Z) :- write(X), write(' | '), columns0(1,Z), write('|').
+mazeTable(From,Rows,Columns) :- 
+	write(From), 
+	write(' | '), 
+	columns0(1,Columns), 
+	write('|'), 
+	nl, 
+	Z is From+1, 
+	mazeTable(Z,Rows,Columns).
+
+
+printMaze(X,X).
+printMaze(X,Y) :-
+	print('    '), printNumbers(0,Y), nl,
+	print('  +'), printDivider(Y), print('-+'), nl,
+	mazeTable(1,X,Y), nl,
+	print('  +'), printDivider(Y), print('-+'), nl.
+
+maze :- 
+	mazeSize(X,Y), 
+	printMaze(X,Y).
+
 	
 
 
