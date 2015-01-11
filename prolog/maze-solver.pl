@@ -13,44 +13,76 @@ barrier(4,8).
 barrier(4,9).
 barrier(5,2).
 
-findAWayOut(From,To,Path) :-
-	not(lastStop(From,To)),
-	moveRight(From,P),
-	findAWayOut(P,To,Path), append([],P,Path).
+move(X,X,Z).
+move([FromX|[FromY|_]],[ToX|[ToY|_]],Path) :- move0(FromX,ToX,FromY,ToY,[],P), rev(P,Path).
 
-moveRight([X|[Y|_]],Z) :-
-	 A is Y+1, not(barrier(X,A)), write('*'), append([],[X,A],Z).
-	 
-lastStop(X, X2) :- X = X2.
+move0(X,X,Y,Y,P,P).
+move0(FromX,ToX,FromY,ToY,P,R) :-
+	Z is FromX+1,
+	isValid(Z,FromY,P),
+	move0(Z,ToX,FromY,ToY,[[Z,FromY]|P],R).
+move0(FromX,ToX,FromY,ToY,P,R) :-
+	Z is FromY+1, 
+	isValid(FromX,Z,P), 
+	move0(FromX,ToX,Z,ToY,[[FromX,Z]|P],R).
+move0(FromX,ToX,FromY,ToY,P,R) :-
+	Z is FromX-1,
+	isValid(Z,ToX,P),
+	move0(Z,ToX,FromY,ToY,[[Z,FromY]|P],R).
+move0(FromX,ToX,FromY,ToY,P,R) :-
+	Z is FromY-1, 
+	isValid(FromX,Z,P), 
+	move0(FromX,ToX,Z,ToY,[[FromX,Z]|P],R).
 
-solve(From, To, Path) :-
-	write('*'),
-	findAWayOut(From,To,Path).
-	
-% TEST SOME CONCEPTS HERE
-findPath(X,X,[X]).
-findPath(X,X2,[X|R]) :-
-		X < X2, Z is X+1, findPath(Z,X2,R).
-		
-%It makes a list of the two list
-findPathSecond([X1|[X2|_]],[Y1|[Y2|_]],R) :-
-	findPath(X1,Y2,R1), 
-	findPath(X2,Y2,R2),	
-	append([R1],[R2],R).
+isValid(X,Y,P) :-
+	mazeSize(A,Z),
+	(X =< A, X >= 1),
+	(Y =< Z, Y >= 1),
+	not(barrier(X,Y)),
+	ok([X,Y],P).
 
-%not in used, but useful to have. Similar to the following one.
-makePairsX(0,Y,[]).
-makePairsX(X,Y,R) :-
-	A is X-1, makePairsX(A,Y,Z), append(Z,[[X,Y]],R).
+ok(X,[]).
+ok(X,[H|T]) :- X \== H, ok(X,T).
 
-%look for all the locations of the maze in a column
-makePairsY(X,0,[]).
-makePairsY(X,Y,R) :-
-	A is Y-1, makePairsY(X,A,Z), append(Z,[[X,Y]],R).
+rev(L1,L2) :- reverseme(L1,[],L2).
 
-%produce all the locations of the maze
-makeTree(0,Y,R).
-makeTree(X,Y,R) :-
-	makePairsY(X,Y,Z), A is X-1, makeTree(A,Y,B), append(B,Z,R).
+reverseme([],L,L).
+reverseme([X|L],L2,L3) :- reverseme(L,[X|L2],L3).
 
-	
+%print the maze
+columns(AnyRow,0).
+columns(Row,Column) :- barrier(Row,Column), write('x '), NewColumn is Column-1, columns(NewRow,NewColumn).
+columns(Row,Column) :- write('. '), NewColumn is Column-1, columns(Row,NewColumn).
+
+printNumbers(X,X).
+printNumbers(X,Y) :- 
+	Z is X+1, write(Z), write(' '), printNumbers(Z,Y).
+
+printDivider(0).
+printDivider(X) :-
+	print('--'), Z is X-1, printDivider(Z).
+
+columns0(X,X) :- write('. '). 
+columns0(From,To) :- write('. '), Z is From+1, columns0(Z,To).
+
+mazeTable(X,X,Z) :- write(X), write(' | '), columns0(1,Z), write('|').
+mazeTable(From,Rows,Columns) :- 
+	write(From), 
+	write(' | '), 
+	columns0(1,Columns), 
+	write('|'), 
+	nl, 
+	Z is From+1, 
+	mazeTable(Z,Rows,Columns).
+
+
+printMaze(X,X).
+printMaze(X,Y) :-
+	print('    '), printNumbers(0,Y), nl,
+	print('  +'), printDivider(Y), print('-+'), nl,
+	mazeTable(1,X,Y), nl,
+	print('  +'), printDivider(Y), print('-+'), nl.
+
+maze :- 
+	mazeSize(X,Y), 
+	printMaze(X,Y).
