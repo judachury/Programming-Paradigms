@@ -104,6 +104,21 @@
             (sudoku-row (cdr matrix))))
   )
 
+ (define (thisone my-list row)
+     (cond
+       [(null? my-list) row]
+       [else (thisone (cdr my-list) (remove-from-location row (car my-list) 0))] 
+      )
+   )
+
+#;(define (sudoku-row-2 matrix)
+  (cond
+    [(null? matrix) '()]
+    [(null? (find-all-singletons (car matrix))) (remove-from-location (car matrix) () 0)]
+    [else (cons (car matrix) (sudoku-row-2 (cdr matrix)))]
+    )
+  )
+
 (define transformed-matrix (transform sudoku sudokuAltValues))
 ;(sudoku-row transformed-matrix)
 
