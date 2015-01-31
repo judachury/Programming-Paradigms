@@ -1,19 +1,26 @@
 ﻿%barrier(newcastle,carlisle,58).
-%barrier(carlisle,penrith,23).
-%barrier(darlington,newcastle,40).
-%barrier(penrith,darlington,52).
-%barrier(workington,carlisle,40).
-%barrier(workington,penrith,39).
-%barrier(X,Y) :- barrier(X,Y,Z).
+barrier(carlisle,penrith,23).
+barrier(darlington,newcastle,40).
+barrier(penrith,darlington,52).
+barrier(workington,carlisle,40).
+barrier(workington,penrith,39).
+barrier(X,Y) :- barrier(X,Y,Z).
 
 go(Start,Dest,Route) :-
-	go0(Start,Dest,[],R),
+	%go0(Start,Dest,[],R),
+	go1([[Start]],Dest,R)
 	rev(R,Route).
 
 go0(X,X,T,[X|T]).
 go0(Place,Y,T,R) :-
 	legalnode(Place,T,Next),
 	go0(Next,Y,[Place|T],R).
+	
+go1([First|Rest],Dest,First) :- First = [Dest|_].
+go1([[Last|Trail]|Others],Dest,Route) :- 
+	findall([Z,Last|Trail],	legalnode(Last,Trail,Z), List),
+	append(List,Others,NewRoutes)),
+	go1(NewRoutes,Dest,Route).	
 
 legalnode(X,Trail,Y) :-
 	(barrier(X,Y) ; barrier(Y,X)), legal(Y,Trail).
@@ -31,19 +38,19 @@ rev2(L1,L2) :- revzap(L1,[],L2).
 %another test, move from left to right.
 mazeSize(5,9).
 
-barrier(1,8).
-barrier(2,1).
-barrier(2,2).
-barrier(2,4).
-barrier(2,5).
-barrier(3,4).
-barrier(3,7).
-barrier(3,9).
-barrier(4,4).
-barrier(4,7).
-barrier(4,8).
-barrier(4,9).
-barrier(5,2).
+%barrier(1,8).
+%barrier(2,1).
+%barrier(2,2).
+%barrier(2,4).
+%barrier(2,5).
+%barrier(3,4).
+%barrier(3,7).
+%barrier(3,9).
+%barrier(4,4).
+%barrier(4,7).
+%barrier(4,8).
+%barrier(4,9).
+%barrier(5,2).
 
 findAWayOut(From,To,Path) :-
 	not(lastStop(From,To)),

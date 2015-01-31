@@ -14,23 +14,25 @@ barrier(4,9).
 barrier(5,2).
 
 solve(From,To,Path) :- 
+	validEntry(From,To),
 	mazeSize(X,Y),
 	move(From,To,Z), 
 	append([From],Z,Path),
-	makeTable(X,Y,Path) .
+	makeTable(X,Y,Path),
+	!.
 
 move(X,X,Z).
 move([FromX|[FromY|_]],[ToX|[ToY|_]],Path) :- move0(FromX,ToX,FromY,ToY,[],P), rev(P,Path).
 
 move0(X,X,Y,Y,P,P).
 move0(FromX,ToX,FromY,ToY,P,R) :-
-	Z is FromX+1,
-	isValid(Z,FromY,P),
-	move0(Z,ToX,FromY,ToY,[[Z,FromY]|P],R).
-move0(FromX,ToX,FromY,ToY,P,R) :-
 	Z is FromY+1, 
 	isValid(FromX,Z,P), 
 	move0(FromX,ToX,Z,ToY,[[FromX,Z]|P],R).
+move0(FromX,ToX,FromY,ToY,P,R) :-
+	Z is FromX+1,
+	isValid(Z,FromY,P),
+	move0(Z,ToX,FromY,ToY,[[Z,FromY]|P],R).
 move0(FromX,ToX,FromY,ToY,P,R) :-
 	Z is FromX-1,
 	isValid(Z,ToX,P),
@@ -54,6 +56,8 @@ rev(L1,L2) :- reverseme(L1,[],L2).
 
 reverseme([],L,L).
 reverseme([X|L],L2,L3) :- reverseme(L,[X|L2],L3).
+
+validEntry([FromX|[FromY|_]],[ToX|[ToY|_]]) :- not(barrier(FromX,FromY)), not(barrier(ToX,ToY)).
 
 %============================================================
 printNumbers(X,X).
